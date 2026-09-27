@@ -1,0 +1,585 @@
+/*
+ * Identidad de marca: estilos propios del componente.
+ * Todo cuelga de .mc-propagacion para que no choque con otros componentes.
+ */
+
+/* Documento del embed: sin márgenes, fondo blanco y sin scroll horizontal */
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: #FFFFFF;
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+.mc-propagacion {
+  --papel: #FFFFFF;
+  --tinta: #1C2C5B;          /* azul oscuro: contraste */
+  --celeste: #6CABDD;        /* azul celeste: acento */
+  --celeste-medio: #9CC7EA;
+  --celeste-claro: #CFE4F5;
+  --celeste-velo: #EEF6FC;
+  --texto: #202020;
+  --gris: #6B6B6B;
+  --linea: #D9D9D9;
+
+  --display: "Archivo", "Arial Narrow", "Helvetica Neue", Arial, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  --sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI Variable Text",
+          "Segoe UI", Helvetica, Arial, sans-serif;
+
+  --salida: cubic-bezier(.16, 1, .3, 1);
+  --suave: cubic-bezier(.4, 0, .2, 1);
+
+  height: 100%;
+  font-family: var(--sans);
+  color: var(--texto);
+  -webkit-font-smoothing: antialiased;
+}
+
+.mc-propagacion, .mc-propagacion *, .mc-propagacion *::before, .mc-propagacion *::after { box-sizing: border-box; }
+
+/* La pieza se centra en la altura que tenga el embed */
+.mc-propagacion .pieza {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 100%;
+  margin: 0;
+  padding: 8px 2px;
+}
+
+.mc-propagacion .rotulo {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  line-height: 1.4;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--gris);
+}
+
+.mc-propagacion .rotulo b {
+  font-weight: 500;
+  color: var(--tinta);
+}
+
+.mc-propagacion button {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mc-propagacion button:focus { outline: none; }
+.mc-propagacion button:focus-visible {
+  outline: 1px solid var(--celeste);
+  outline-offset: 4px;
+}
+
+/* Con "reducir movimiento", la pieza muestra directamente su estado final */
+@media (prefers-reduced-motion: reduce) {
+  .mc-propagacion *, .mc-propagacion *::before, .mc-propagacion *::after {
+    transition-duration: 0ms !important;
+    transition-delay: 0ms !important;
+    animation: none !important;
+  }
+}
+
+/* ── Componente ───────────────────────── */
+.mc-propagacion .cabeza {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.mc-propagacion .lienzo {
+  position: relative;
+  height: 400px;
+  overflow: hidden;
+  cursor: pointer;
+  outline: none;
+}
+.mc-propagacion .lienzo.is-estrecho { height: 440px; }
+.mc-propagacion .lienzo:focus-visible .texto__paso { color: var(--celeste); }
+
+.mc-propagacion .sin-transicion, .mc-propagacion .sin-transicion * { transition: none !important; animation: none !important; }
+
+/* ── Capas: una por paso ───────────────── */
+.mc-propagacion .capa {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 380ms ease, visibility 0s linear 380ms;
+}
+.mc-propagacion .capa.is-activa {
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 380ms ease;
+}
+.mc-propagacion .capa__svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* ── Texto del paso ───────────────────── */
+.mc-propagacion .texto {
+  position: absolute;
+  z-index: 5;
+  left: 0;
+  top: 26px;
+  width: var(--tw);
+  transition: opacity 240ms ease, transform 500ms var(--salida);
+}
+.mc-propagacion .texto.is-saliendo { opacity: 0; transform: translateY(-6px); }
+.mc-propagacion .texto.is-entrando { opacity: 0; transform: translateY(8px); transition: none; }
+
+.mc-propagacion .texto__paso { margin: 0 0 12px; }
+.mc-propagacion .texto__paso b { color: var(--tinta); font-weight: 500; }
+
+.mc-propagacion .texto__concepto {
+  margin: 0;
+  font-family: var(--display);
+  font-size: 34px;
+  font-weight: 800;
+  font-stretch: 78%;
+  line-height: .96;
+  letter-spacing: -.005em;
+  text-transform: uppercase;
+  color: var(--tinta);
+  transition: font-stretch 1000ms var(--salida);
+}
+.mc-propagacion .texto.is-entrando .texto__concepto { font-stretch: 62%; }
+.mc-propagacion .texto__concepto.is-pregunta {
+  font-size: 27px;
+  font-weight: 700;
+  font-stretch: 86%;
+  line-height: 1.08;
+  text-transform: none;
+}
+
+.mc-propagacion .texto__explicacion {
+  max-width: 36ch;
+  margin: 14px 0 0;
+  font-size: 14.5px;
+  line-height: 1.55;
+  color: var(--texto);
+}
+
+/* En el último paso el texto funciona como leyenda de la animación */
+.mc-propagacion .texto.is-leyenda { top: auto; bottom: 6px; width: 100%; }
+.mc-propagacion .texto.is-leyenda .texto__concepto { display: none; }
+.mc-propagacion .texto.is-leyenda .texto__paso { margin-bottom: 6px; }
+.mc-propagacion .texto.is-leyenda .texto__explicacion {
+  max-width: 62ch;
+  margin: 0;
+  font-family: var(--display);
+  font-size: 18px;
+  font-weight: 500;
+  font-stretch: 88%;
+  line-height: 1.3;
+  color: var(--tinta);
+  transition: opacity 260ms ease;
+}
+.mc-propagacion .texto__explicacion.is-cambiando { opacity: 0; }
+
+.mc-propagacion .is-estrecho .texto { top: var(--ty); width: 100%; }
+.mc-propagacion .is-estrecho .texto__paso { margin-bottom: 8px; }
+.mc-propagacion .is-estrecho .texto__concepto { font-size: 24px; }
+.mc-propagacion .is-estrecho .texto__concepto.is-pregunta { font-size: 21px; }
+.mc-propagacion .is-estrecho .texto__explicacion { max-width: none; margin-top: 9px; font-size: 13.5px; line-height: 1.5; }
+.mc-propagacion .is-estrecho .texto.is-leyenda { top: var(--ty); bottom: auto; }
+.mc-propagacion .is-estrecho .texto.is-leyenda .texto__explicacion { font-size: 16px; }
+
+/* ── Piezas compartidas ───────────────── */
+.mc-propagacion .guia {
+  fill: none;
+  stroke: var(--tinta);
+  stroke-width: 1;
+  transition: stroke-dashoffset 520ms var(--suave);
+}
+.mc-propagacion .guia__punto {
+  fill: var(--tinta);
+  stroke: #fff;
+  stroke-width: 1.5;
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+.mc-propagacion .guia__punto.is-visible { opacity: 1; }
+
+.mc-propagacion .anotacion {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  z-index: 3;
+  transform: translate(var(--ax, 0%), -7px);
+  opacity: 0;
+  transition: opacity 420ms ease 260ms;
+}
+.mc-propagacion .anotacion.is-visible { opacity: 1; }
+.mc-propagacion .anotacion__titulo {
+  display: block;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 500;
+  line-height: 14px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--tinta);
+}
+.mc-propagacion .anotacion__detalle {
+  display: block;
+  margin-top: 1px;
+  font-size: 11.5px;
+  line-height: 1.35;
+  color: var(--gris);
+}
+.mc-propagacion .evidencia {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--w);
+  margin: 0;
+}
+.mc-propagacion .evidencia__marco {
+  position: relative;
+  overflow: hidden;
+  background: var(--celeste-velo);
+  -webkit-clip-path: inset(0 100% 0 0);
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path 950ms var(--salida), -webkit-clip-path 950ms var(--salida);
+}
+.mc-propagacion .evidencia__marco img { transform: scale(1.07); transition: transform 1800ms var(--salida); }
+.mc-propagacion .evidencia.is-visible .evidencia__marco { -webkit-clip-path: inset(0 0 0 0); clip-path: inset(0 0 0 0); }
+.mc-propagacion .evidencia.is-visible .evidencia__marco img { transform: none; }
+
+/* ── 0 · Pregunta ─────────────────────── */
+.mc-propagacion .orbita {
+  fill: none;
+  stroke: var(--linea);
+  stroke-width: 1;
+  transition: stroke-dashoffset 1200ms var(--suave);
+}
+.mc-propagacion .nucleo { fill: var(--tinta); transform-box: fill-box; transform-origin: center; }
+.mc-propagacion .nucleo.is-latido { animation: mc-propagacion-latido 900ms var(--salida) 1; }
+@keyframes mc-propagacion-latido { 40% { transform: scale(1.6); } }
+.mc-propagacion .halo { fill: none; stroke: var(--tinta); stroke-opacity: .2; }
+
+.mc-propagacion .hueco {
+  fill: #fff;
+  stroke: var(--tinta);
+  stroke-width: 1;
+  opacity: 0;
+  transform: scale(.3);
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: opacity 300ms ease, transform 600ms var(--salida);
+}
+.mc-propagacion .hueco.is-visible { opacity: 1; transform: none; }
+.mc-propagacion .hueco-rotulo {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  transform: translate(var(--ax), var(--ay));
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 420ms ease;
+}
+.mc-propagacion .hueco-rotulo.is-visible { opacity: 1; }
+
+/* ── 1 · Nombre ───────────────────────── */
+.mc-propagacion .cadena {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--w);
+  margin: 0;
+  text-align: center;
+}
+.mc-propagacion .cadena__forma { opacity: 0; transition: opacity 500ms ease; }
+.mc-propagacion .cadena__forma.is-visible { opacity: 1; }
+.mc-propagacion .cadena__forma:last-child.is-visible { color: var(--tinta); }
+
+.mc-propagacion .nombre {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--w);
+  margin: 0;
+  text-align: center;
+  font-family: var(--display);
+  font-weight: 800;
+  font-stretch: 70%;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--tinta);
+}
+.mc-propagacion .nombre__linea { display: inline-block; }
+.mc-propagacion .nombre__letra {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  white-space: pre;
+  opacity: 0;
+  transform: translateY(.35em);
+  transition: opacity 420ms ease calc(var(--i) * 30ms),
+              transform 700ms var(--salida) calc(var(--i) * 30ms),
+              max-width 800ms var(--suave);
+}
+.mc-propagacion .nombre.is-visible .nombre__letra { opacity: 1; transform: none; }
+.mc-propagacion .nombre .nombre__letra.is-plegada {
+  max-width: 0 !important;
+  opacity: 0;
+  transition-delay: 0ms;
+}
+.mc-propagacion .nombre.midiendo .nombre__letra { max-width: none !important; }
+
+/* ── 2 · Escudo ───────────────────────── */
+.mc-propagacion .trazo {
+  fill: none;
+  stroke: var(--tinta);
+  stroke-width: 1.25;
+  transition: opacity 900ms ease;
+}
+.mc-propagacion .trazo.is-tenue { opacity: .2; }
+.mc-propagacion .lapiz { fill: var(--tinta); }
+
+.mc-propagacion .escudo {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--d);
+  height: var(--d);
+  -webkit-clip-path: circle(0% at 50% 50%);
+  clip-path: circle(0% at 50% 50%);
+  transition: clip-path 1000ms var(--salida), -webkit-clip-path 1000ms var(--salida);
+}
+.mc-propagacion .escudo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform: scale(1.1);
+  transition: transform 1500ms var(--salida);
+}
+.mc-propagacion .escudo.is-visible { -webkit-clip-path: circle(50% at 50% 50%); clip-path: circle(50% at 50% 50%); }
+.mc-propagacion .escudo.is-visible img { transform: none; }
+
+.mc-propagacion .fuente {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  margin: 0;
+  font-size: 9.5px;
+  opacity: 0;
+  transition: opacity 500ms ease;
+}
+.mc-propagacion .fuente.is-visible { opacity: 1; }
+
+/* ── 3 · Identidad: pieza tipográfica ── */
+.mc-propagacion .fantasma {
+  position: absolute;
+  left: 0;
+  top: 0;
+  margin: 0;
+  font-family: var(--display);
+  font-size: var(--fs);
+  font-weight: 800;
+  font-stretch: 62%;
+  line-height: 1;
+  letter-spacing: .01em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--tinta);
+  opacity: 0;
+  transform: translate(var(--cx), var(--cy)) translate(-50%, -50%);
+  transition: opacity 700ms ease, font-stretch 1400ms var(--salida), letter-spacing 1800ms var(--salida);
+}
+.mc-propagacion [data-fase="1"] .fantasma { opacity: 1; font-stretch: 86%; }
+.mc-propagacion [data-fase="2"] .fantasma { opacity: .08; font-stretch: 86%; letter-spacing: .5em; }
+.mc-propagacion [data-fase="3"] .fantasma, .mc-propagacion [data-fase="4"] .fantasma { opacity: 0; font-stretch: 86%; letter-spacing: .7em; }
+
+/* Cada código empieza con su propio estilo y termina con el estilo común */
+.mc-propagacion .codigo {
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-family: var(--display);
+  font-size: var(--fs);
+  font-weight: var(--fw);
+  font-stretch: var(--fst);
+  letter-spacing: var(--ls);
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--col);
+  opacity: 0;
+  transform: translate(var(--cx), var(--cy)) translate(-50%, -50%) scale(.3);
+  transition: transform 1000ms var(--salida), opacity 500ms ease,
+              font-size 900ms var(--suave), font-weight 900ms var(--suave),
+              font-stretch 900ms var(--suave), letter-spacing 900ms var(--suave), color 700ms ease;
+  transition-delay: calc(var(--i) * 110ms);
+}
+.mc-propagacion [data-fase="2"] .codigo { opacity: 1; transform: translate(var(--x2), var(--y2)) translate(-50%, -50%); }
+.mc-propagacion [data-fase="3"] .codigo {
+  opacity: 1;
+  transform: translate(var(--x3), var(--y3)) translate(0%, -50%);
+  font-size: var(--fs3);
+  font-weight: 700;
+  font-stretch: 80%;
+  letter-spacing: .02em;
+  color: var(--tinta);
+}
+.mc-propagacion [data-fase="4"] .codigo {
+  opacity: 1;
+  transform: translate(var(--x4), var(--y4)) translate(0%, -50%);
+  font-size: var(--fs4);
+  font-weight: 600;
+  font-stretch: 100%;
+  letter-spacing: .12em;
+  color: var(--tinta);
+  transition-delay: calc(var(--i) * 70ms);
+}
+
+.mc-propagacion .codigo__indice {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translate(var(--x), var(--y)) translate(0, -50%);
+  opacity: 0;
+  transition: opacity 500ms ease;
+}
+.mc-propagacion [data-fase="3"] .codigo__indice { opacity: 1; transition-delay: calc(600ms + var(--i) * 90ms); }
+
+.mc-propagacion .radial, .mc-propagacion .regla-fila {
+  stroke: var(--linea);
+  stroke-width: 1;
+  stroke-dasharray: var(--L) var(--L);
+  stroke-dashoffset: var(--L);
+  transition: stroke-dashoffset 900ms var(--suave), opacity 500ms ease;
+}
+.mc-propagacion [data-fase="2"] .radial { stroke-dashoffset: 0; transition-delay: calc(var(--i) * 110ms); }
+.mc-propagacion [data-fase="3"] .radial, .mc-propagacion [data-fase="4"] .radial { stroke-dashoffset: 0; opacity: 0; }
+.mc-propagacion [data-fase="3"] .regla-fila { stroke-dashoffset: 0; transition-delay: calc(500ms + var(--i) * 90ms); }
+.mc-propagacion [data-fase="4"] .regla-fila { stroke-dashoffset: 0; opacity: 0; }
+
+.mc-propagacion .marca {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--w);
+  margin: 0;
+  text-align: center;
+  font-family: var(--display);
+  font-size: var(--fs);
+  font-weight: 800;
+  font-stretch: 74%;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--tinta);
+}
+.mc-propagacion .marca__linea-texto { display: inline-block; }
+.mc-propagacion .marca__letra {
+  display: inline-block;
+  white-space: pre;
+  opacity: 0;
+  transform: translateY(.4em);
+  transition: opacity 450ms ease, transform 800ms var(--salida);
+}
+.mc-propagacion [data-fase="4"] .marca__letra { opacity: 1; transform: none; transition-delay: calc(350ms + var(--i) * 35ms); }
+
+.mc-propagacion .marca__rotulo {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  transform: translateX(-50%);
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 500ms ease;
+}
+.mc-propagacion [data-fase="4"] .marca__rotulo { opacity: 1; transition-delay: 1000ms; }
+
+.mc-propagacion .marca__subrayado {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--w);
+  height: 3px;
+  background: var(--celeste);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 900ms var(--salida);
+}
+.mc-propagacion [data-fase="4"] .marca__subrayado { transform: scaleX(1); transition-delay: 1150ms; }
+
+.mc-propagacion .codigo__punto {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translate(var(--x), var(--y)) translate(-50%, -50%);
+  font-size: 11px;
+  line-height: 1;
+  color: var(--celeste);
+  opacity: 0;
+  transition: opacity 400ms ease;
+}
+.mc-propagacion [data-fase="4"] .codigo__punto.is-usado { opacity: 1; transition-delay: calc(900ms + var(--i) * 60ms); }
+
+/* ── Progreso ─────────────────────────── */
+.mc-propagacion .progreso {
+  display: flex;
+  gap: 6px;
+  margin-top: 12px;
+}
+.mc-propagacion .tramo {
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 6px 0 0;
+  text-align: left;
+}
+.mc-propagacion .tramo__pista {
+  position: relative;
+  display: block;
+  height: 2px;
+  overflow: hidden;
+  background: #E6E6E6;
+}
+.mc-propagacion .tramo__barra {
+  position: absolute;
+  inset: 0;
+  background: var(--tinta);
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+.mc-propagacion .tramo__nombre {
+  display: block;
+  margin-top: 6px;
+  overflow: hidden;
+  font-family: var(--mono);
+  font-size: 9.5px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #9A9A9A;
+  transition: color 300ms ease;
+}
+.mc-propagacion .tramo.is-actual .tramo__nombre, .mc-propagacion .tramo:hover .tramo__nombre { color: var(--tinta); }
+.mc-propagacion .tramo__corto { display: none; }
+.mc-propagacion .is-estrecho-pieza .tramo__largo { display: none; }
+.mc-propagacion .is-estrecho-pieza .tramo__corto { display: inline; }
